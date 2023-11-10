@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book API Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: white;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .book-cover {
+            width: 100px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .book-details {
+            flex: 1;
+        }
+
+        .download-link {
+            display: block;
+            margin-top: 5px;
+        }
+        /* Add more CSS styles */
+
+/* Style the search input */
+#search-input {
+    width: 300px;
+    margin: 10px;
+    font-size: 16px;
+}
+
+/* Style the search button */
+#search-button {
+    font-size: 16px;
+}
+
+/* Style the book list container */
+#book-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+/* Style individual book items */
+li {
+    width: 300px; /* Set a fixed width for each book item */
+    background-color: white;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column; /* Stack book details vertically */
+    align-items: center;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle box shadow */
+}
+
+/* Style the book title and author */
+.book-details p {
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+/* Style the download button */
+.download-link {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.download-link:hover {
+    background-color: #0056b3;
+}
+
+/* Center the book cover */
+.book-cover {
+    width: 100px;
+    height: auto;
+    margin: 10px 0;
+}
+
+/* Center-align the "No books found" message */
+#book-list li:last-child {
+    text-align: center;
+}
+
+    </style>
+</head>
+<body>
+    <h1>Book Search</h1>
+    <input type="text" id="search-input" placeholder="Enter book title">
+    <button id="search-button">Search</button>
+    <ul id="book-list"></ul>
+
+    <script>
+        $(document).ready(function() {
+            $("#search-button").on("click", function() {
+                var searchTerm = $("#search-input").val();
+                if (searchTerm.trim() !== "") {
+                    var apiUrl = "https://openlibrary.org/search.json?q=" + searchTerm;
+
+                    $.ajax({
+                        url: apiUrl,
+                        type: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            var books = data.docs;
+                            displayBooks(books);
+                        },
+                        error: function() {
+                            alert("Failed to load books. Please try again later.");
+                        }
+                    });
+                }
+            });
+
+            function displayBooks(books) {
+                var bookList = $("#book-list");
+                bookList.empty();
+
+                if (books && books.length > 0) {
+                    $.each(books, function(index, book) {
+                        var title = book.title ? "Title: " + book.title : "Title: N/A";
+                        var author = book.author_name ? "Author: " + book.author_name[0] : "Author: N/A";
+                        var openLibraryKey = book.cover_i;
+                        var coverUrl = "https://covers.openlibrary.org/b/id/" + openLibraryKey + "-M.jpg"; // Updated cover URL
+
+                        var listItem = $("<li>");
+
+                        // Add a book cover
+                        var bookCover = $("<img>")
+                            .addClass("book-cover")
+                            .attr("src", coverUrl);
+
+                        // Create a div to hold book details
+                        var bookDetails = $("<div>").addClass("book-details");
+                        bookDetails.append($("<p>").text(title));
+                        bookDetails.append($("<p>").text(author));
+
+                        // Add a download link for each book in EPUB format
+                        var downloadButton = $("<button>")
+                            .addClass("download-link")
+                            .on("click", function() {
+                                window.open("https://openlibrary.org/" + book.key + "/epub");
+                            })
+                            .text("Download");
+
+                        listItem.append(bookCover);
+                        listItem.append(bookDetails);
+                        listItem.append(downloadButton);
+                        bookList.append(listItem);
+                    });
+                } else {
+                    bookList.append("<li>No books found.</li>");
+                }
+            }
+        });
+    </script>
+</body>
+</html>

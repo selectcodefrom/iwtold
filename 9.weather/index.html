@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #city {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #getWeather {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #getWeather:hover {
+            background-color: #0056b3;
+        }
+        #weatherInfo {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #E6E6E6;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="city" placeholder="Enter a city name">
+        <button id="getWeather">Get Weather</button>
+        <div id="weatherInfo"></div>
+    </div>
+
+    <script>
+        document.getElementById("getWeather").addEventListener("click", function() {
+            const city = document.getElementById("city").value;
+            const apiKey = 'c10bb3bd22f90d636baa008b1529ee25'; // Your OpenWeatherMap API key
+            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', apiUrl, true);
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    const weatherInfo = `City: ${data.name}<br>Temperature: ${data.main.temp}K<br>Weather: ${data.weather[0].description}`;
+                    document.getElementById("weatherInfo").innerHTML = weatherInfo;
+                } else {
+                    console.error('Request failed with status:', xhr.status);
+                    document.getElementById("weatherInfo").innerHTML = "Error fetching weather data.";
+                }
+            };
+
+            xhr.send();
+        });
+    </script>
+</body>
+</html>
